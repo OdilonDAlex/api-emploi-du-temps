@@ -17,11 +17,28 @@ class Level extends Model
         'studentsNumber'
     ];
 
-    public function subjects(): BelongsToMany {
+    public function subjects(): BelongsToMany
+    {
         return $this->belongsToMany(Subject::class, 'level_subject', 'level_id', 'subject_id');
     }
 
-    public function preferenceClassRoom(): BelongsTo {
+    public function preferenceClassRoom(): BelongsTo
+    {
         return $this->belongsTo(ClassRoom::class, 'classroom_id');
+    }
+
+    /**
+     * @param Array<int, ClassRoom> $classrooms
+     * @return int | null
+     */
+    public function getPreferenceClassRoomIndex($classrooms)
+    {
+        $preferenceClassRoom = $this->preferenceClassRoom;
+        foreach ($classrooms as $index => $classroom) {
+            if ($classroom === $preferenceClassRoom) {
+                return $index;
+            }
+        }
+        return null;
     }
 }
