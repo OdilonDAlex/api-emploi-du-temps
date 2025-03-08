@@ -14,10 +14,15 @@ class Course extends Model
     protected $fillable = [
         'duration',
         'subject_id',
-        'weekOf'
+        'weekOf',
+        'user_id'
     ];
 
     public function subject(): BelongsTo {
         return $this->belongsTo(Subject::class, 'subject_id');
+    }
+
+    public function createdby(): BelongsTo {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
