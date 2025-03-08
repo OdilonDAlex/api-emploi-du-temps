@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Title;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,9 +17,13 @@ class ProfessorFactory extends Factory
      */
     public function definition(): array
     {
+
+        $titles = count(Title::all()->toArray());
+
         return [
             'name' => fake()->firstName(),
-            'firstname' => fake()->lastName()
+            'firstname' => fake()->lastName(),
+            'title_id' => random_int(1, $titles)
         ];
     }
 }

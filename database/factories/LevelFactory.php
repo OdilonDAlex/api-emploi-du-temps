@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\ClassRoom;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,11 @@ class LevelFactory extends Factory
      */
     public function definition(): array
     {
+        $count = count(ClassRoom::all()->toArray());
         return [
-            //
+            'name' => fake()->randomLetter(),
+            'studentsNumber' => random_int(20, 200),
+            'classroom_id' => random_int(1, $count)
         ];
     }
 }

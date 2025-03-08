@@ -17,7 +17,8 @@ class ClassRoomFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->word(),
+            'capacity' => random_int(100, 500)
         ];
     }
 }

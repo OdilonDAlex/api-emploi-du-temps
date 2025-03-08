@@ -54,7 +54,9 @@ class Graph
 
     public function addLink(Course $a, Course $b)
     {
-        if (! $this->linked($a, $b)) $this->links[] = [$a, $b];
+        if (! $this->linked($a, $b)) {
+            $this->links[] = [$a, $b];
+        }
     }
     /**
      * @param Array<int, ClassRoom> $classrooms
@@ -67,9 +69,11 @@ class Graph
 
         $arrayObjectClassRoom = new ArrayObject($classrooms);
         while (count($courses) !== 0) {
-            $classroomCopy = $arrayObjectClassRoom->getArrayCopy();
+            $classroomCopy = array($arrayObjectClassRoom->getArrayCopy());
 
             usort($courses, function (Course $a, Course $b) {
+
+
                 return
                     $this->getVertexDegree($a)
                     >=
@@ -78,7 +82,7 @@ class Graph
             });
 
 
-            $x = array_shift($courses);
+            $x = [array_shift($courses)];
             foreach ($courses as $course) {
                 $linked = false;
 
@@ -95,10 +99,10 @@ class Graph
             $x_with_class = array();
 
             usort($x, function (Course $a, Course $b) {
-                $aLevels = $a->levels()->get()->all();
-                $bLevels = $b->levels()->get()->all();
+                $aLevels = $a->subject->levels()->get()->all();
+                $bLevels = $b->subject->levels()->get()->all();
 
-                $sumLevelA = array_sum(array_map(fn ($level) => (int)($level->studentsNumber),  $aLevels));
+                $sumLevelA = array_sum(array_map(fn($level) => (int)($level->studentsNumber),  $aLevels));
                 $sumLevelB = array_sum(array_map(fn($level) => (int)($level->studentsNumber), $bLevels));
 
                 return $sumLevelA >= $sumLevelB ? -1 : 1;
@@ -142,7 +146,7 @@ class Graph
 
             foreach ($x_with_class as $course) {
                 try {
-                    $courses = array_filter($course, fn($c) => $c !== $course);
+                    $courses = array_filter($courses, fn($c) => $c !== $course);
                 } catch (Exception $e) {
                     // 
                 }
@@ -158,7 +162,7 @@ class Graph
      * @param Course $b
      * @return bool
      */
-    public function linked($a, $b)
+    public function linked(Course $a, Course $b)
     {
         if (
             in_array([$a, $b], $this->links)
@@ -180,6 +184,12 @@ class Graph
             if (in_array($course, $link)) $count++;
         }
 
-        return $count / 2;
+        return $count / 2; {
+            $count = 0;
+            foreach ($this->links as $link) {
+                if (in_array($course, $link)) $count++;
+            }
+            return $count / 2;
+        }
     }
 }

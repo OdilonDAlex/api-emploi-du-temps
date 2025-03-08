@@ -8,6 +8,8 @@ use App\Http\Controllers\ProfessorController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TitleController;
 use App\Models\ClassRoom;
+use App\Models\Course;
+use App\Models\Graph;
 use App\Models\Professor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,3 +30,16 @@ Route::apiResource('course', CourseController::class)->middleware('auth:sanctum'
 Route::apiResource('level', LevelController::class)->middleware('auth:sanctum');
 Route::apiResource('subject', SubjectController::class)->middleware('auth:sanctum');
 Route::apiResource('title', TitleController::class)->middleware('auth:sanctum');
+
+
+Route::get('/graph', function(Request $request) {
+    $courses = Course::all();
+    $classrooms = ClassRoom::all();
+    $g = new Graph();
+
+    foreach($courses as $course){
+        $g->addVertex($course);
+    }
+
+    return $g->colorize($classrooms);
+});
