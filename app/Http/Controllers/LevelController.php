@@ -22,8 +22,8 @@ class LevelController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
-            'studentsNumber' => ['required', 'integer'],
+            'name' => ['required', 'string', 'max:255'],
+            'studentsNumber' => ['required', 'integer', 'min:1'],
             'classroom_id' => ['nullable', 'exists:classrooms,id']
         ]);
 
@@ -31,8 +31,8 @@ class LevelController extends Controller
 
         return [
             'message' => 'Level Created',
-            'status' => 200,
-            'Level' => $level->with('preferenceClassRoom')
+            'status' => 201,
+            'level' => $level->load('preferenceClassRoom')
         ];
     }
 
@@ -43,16 +43,15 @@ class LevelController extends Controller
     {
         try {
             $level = Level::findOrFail((int)$id);
-            
+
             return [
                 'status' => 200,
-                'Level' => $level,
+                'level' => $level->load('preferenceClassRoom'),
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Level not found',
-                'status' => 422,
+                'status' => 404,
                 'errors' => $e->getMessage()
             ];
         }
@@ -63,29 +62,25 @@ class LevelController extends Controller
      */
     public function update(Request $request, string | int $id)
     {
-
         $data = $request->validate([
-            'name' => ['nullable', 'string'],
-            'studentsNumber' => ['nullable', 'integer'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'studentsNumber' => ['nullable', 'integer', 'min:1'],
             'classroom_id' => ['nullable', 'exists:classrooms,id']
         ]);
 
         try {
             $level = Level::findOrFail((int)$id);
-            $data['id'] = $level->id;
-
-            Level::update($data);
+            $level->update($data);
 
             return [
-                'message' => 'Level Created',
+                'message' => 'Level Updated',
                 'status' => 200,
-                'Level' => Level::find((int)$id)
+                'level' => $level->fresh()->load('preferenceClassRoom')
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Level not found',
-                'status' => 422,
+                'status' => 404,
                 'errors' => $e->getMessage()
             ];
         }
@@ -97,17 +92,15 @@ class LevelController extends Controller
     public function destroy(string | int $id)
     {
         try {
-            
             Level::destroy((int)$id);
             return [
                 'message' => 'Level Deleted',
                 'status' => 200,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Level not found',
-                'status' => 422,
+                'status' => 404,
                 'errors' => $e->getMessage()
             ];
         }

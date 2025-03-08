@@ -43,13 +43,12 @@ class ProfessorController extends Controller
     {
         try {
             $professor = Professor::findOrFail((int)$id);
-            
+
             return [
                 'status' => 200,
-                'professor' => $professor->with('title')
+                'professor' => $professor->load('title')
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Professor not found',
                 'status' => 422,
@@ -63,7 +62,6 @@ class ProfessorController extends Controller
      */
     public function update(Request $request, string | int $id)
     {
-
         $data = $request->validate([
             'name' => ['nullable', 'string'],
             'firstname' => ['nullable', 'string'],
@@ -72,17 +70,14 @@ class ProfessorController extends Controller
 
         try {
             $professor = Professor::findOrFail((int)$id);
-            $data['id'] = $professor->id;
-
-            Professor::update($data);
+            $professor->update($data);
 
             return [
-                'message' => 'Professor Created',
+                'message' => 'Professor Updated',
                 'status' => 200,
-                'professor' => Professor::find((int)$id)->with('title')
+                'professor' => $professor->fresh()->load('title')
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Professor not found',
                 'status' => 422,
@@ -97,14 +92,13 @@ class ProfessorController extends Controller
     public function destroy(string | int $id)
     {
         try {
-            
+
             Professor::destroy((int)$id);
             return [
                 'message' => 'Professor Deleted',
                 'status' => 200,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Professor not found',
                 'status' => 422,

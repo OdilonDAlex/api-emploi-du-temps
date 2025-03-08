@@ -44,13 +44,12 @@ class CourseController extends Controller
     {
         try {
             $course = Course::findOrFail((int)$id);
-            
+
             return [
                 'status' => 200,
                 'Course' => $course->with('createdby'),
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Course not found',
                 'status' => 422,
@@ -64,7 +63,6 @@ class CourseController extends Controller
      */
     public function update(Request $request, string | int $id)
     {
-
         $data = $request->validate([
             'duration' => ['nullable', 'integer'],
             'subject_id' => ['nullable', 'exists:subjects,id'],
@@ -73,17 +71,14 @@ class CourseController extends Controller
 
         try {
             $course = Course::findOrFail((int)$id);
-            $data['id'] = $course->id;
-
-            Course::update($data);
+            $course->update($data);
 
             return [
-                'message' => 'Course Created',
+                'message' => 'Course Updated',
                 'status' => 200,
-                'Course' => Course::find((int)$id)
+                'course' => $course->fresh()
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Course not found',
                 'status' => 422,
@@ -98,14 +93,13 @@ class CourseController extends Controller
     public function destroy(string | int $id)
     {
         try {
-            
+
             Course::destroy((int)$id);
             return [
                 'message' => 'Course Deleted',
                 'status' => 200,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Course not found',
                 'status' => 422,

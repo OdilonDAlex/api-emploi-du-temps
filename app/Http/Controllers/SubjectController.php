@@ -41,14 +41,13 @@ class SubjectController extends Controller
     public function show(string | int $id)
     {
         try {
-            $Subject = Subject::findOrFail((int)$id);
-            
+            $subject = Subject::findOrFail((int)$id);
+
             return [
                 'status' => 200,
-                'Subject' => $Subject->with('professor'),
+                'subject' => $subject->load('professor'),
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Subject not found',
                 'status' => 422,
@@ -62,25 +61,21 @@ class SubjectController extends Controller
      */
     public function update(Request $request, string | int $id)
     {
-
         $data = $request->validate([
             'name' => ['nullable', 'string'],
             'professor_id' => ['nullable', 'exists:professors,id'],
         ]);
 
         try {
-            $Subject = Subject::findOrFail((int)$id);
-            $data['id'] = $Subject->id;
-
-            Subject::update($data);
+            $subject = Subject::findOrFail((int)$id);
+            $subject->update($data);
 
             return [
-                'message' => 'Subject Created',
+                'message' => 'Subject Updated',
                 'status' => 200,
-                'Subject' => Subject::find((int)$id)
+                'subject' => $subject->fresh()
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Subject not found',
                 'status' => 422,
@@ -95,14 +90,13 @@ class SubjectController extends Controller
     public function destroy(string | int $id)
     {
         try {
-            
+
             Subject::destroy((int)$id);
             return [
                 'message' => 'Subject Deleted',
                 'status' => 200,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Subject not found',
                 'status' => 422,

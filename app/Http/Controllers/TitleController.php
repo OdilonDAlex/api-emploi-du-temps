@@ -22,15 +22,15 @@ class TitleController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string'],
+            'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $Title = Title::create($data);
+        $title = Title::create($data);
 
         return [
             'message' => 'Title Created',
-            'status' => 200,
-            'Title' => $Title
+            'status' => 201,
+            'title' => $title
         ];
     }
 
@@ -40,18 +40,16 @@ class TitleController extends Controller
     public function show(string | int $id)
     {
         try {
-            $Title = Title::findOrFail((int)$id);
-            
+            $title = Title::findOrFail((int)$id);
+
             return [
                 'status' => 200,
-                'Title' => $Title,
-                
+                'title' => $title,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Title not found',
-                'status' => 422,
+                'status' => 404,
                 'errors' => $e->getMessage()
             ];
         }
@@ -62,27 +60,23 @@ class TitleController extends Controller
      */
     public function update(Request $request, string | int $id)
     {
-
         $data = $request->validate([
-            'name' => ['nullable', 'string'],
+            'name' => ['nullable', 'string', 'max:255'],
         ]);
 
         try {
-            $Title = Title::findOrFail((int)$id);
-            $data['id'] = $Title->id;
-
-            Title::update($data);
+            $title = Title::findOrFail((int)$id);
+            $title->update($data);
 
             return [
-                'message' => 'Title Created',
+                'message' => 'Title Updated',
                 'status' => 200,
-                'Title' => Title::find((int)$id)
+                'title' => $title->fresh()
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Title not found',
-                'status' => 422,
+                'status' => 404,
                 'errors' => $e->getMessage()
             ];
         }
@@ -94,14 +88,13 @@ class TitleController extends Controller
     public function destroy(string | int $id)
     {
         try {
-            
+
             Title::destroy((int)$id);
             return [
                 'message' => 'Title Deleted',
                 'status' => 200,
             ];
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
             return [
                 'message' => 'Title not found',
                 'status' => 422,
