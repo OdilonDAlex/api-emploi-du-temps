@@ -133,7 +133,7 @@ class Graph
                 }
 
                 if (
-                    array_sum(array_map(fn($level) => $level->studentsNumber, $levels))
+                    array_sum(array_map(fn($level) => (int)($level->studentsNumber), $levels))
                     <= $classrooms[0]->capacity
                 ) {
                     $x_with_class[] = [$course, array_shift($classroomCopy)];
