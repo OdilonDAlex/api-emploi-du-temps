@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subject;
+use Exception;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
@@ -12,7 +13,7 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        //
+        return Subject::all();
     }
 
     /**
@@ -20,30 +21,93 @@ class SubjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'professor_id' => ['required', 'exists:professors,id'],
+        ]);
+
+        $Subject = Subject::create($data);
+
+        return [
+            'message' => 'Subject Created',
+            'status' => 200,
+            'Subject' => $Subject
+        ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Subject $subject)
+    public function show(string | int $id)
     {
-        //
+        try {
+            $Subject = Subject::findOrFail((int)$id);
+            
+            return [
+                'status' => 200,
+                'Subject' => $Subject->with('professor'),
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Subject not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Subject $subject)
+    public function update(Request $request, string | int $id)
     {
-        //
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string'],
+            'professor_id' => ['nullable', 'exists:professors,id'],
+        ]);
+
+        try {
+            $Subject = Subject::findOrFail((int)$id);
+            $data['id'] = $Subject->id;
+
+            Subject::update($data);
+
+            return [
+                'message' => 'Subject Created',
+                'status' => 200,
+                'Subject' => Subject::find((int)$id)
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Subject not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Subject $subject)
+    public function destroy(string | int $id)
     {
-        //
+        try {
+            
+            Subject::destroy((int)$id);
+            return [
+                'message' => 'Subject Deleted',
+                'status' => 200,
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Subject not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 }

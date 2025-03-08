@@ -14,7 +14,8 @@ class Level extends Model
 
     protected $fillable = [
         'name',
-        'studentsNumber'
+        'studentsNumber',
+        'classroom_id'
     ];
 
     public function subjects(): BelongsToMany

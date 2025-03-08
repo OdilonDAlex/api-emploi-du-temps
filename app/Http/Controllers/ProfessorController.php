@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Professor;
+use Exception;
 use Illuminate\Http\Request;
 
 class ProfessorController extends Controller
@@ -12,7 +13,7 @@ class ProfessorController extends Controller
      */
     public function index()
     {
-        //
+        return Professor::all();
     }
 
     /**
@@ -20,30 +21,95 @@ class ProfessorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'firstname' => ['required', 'string'],
+            'title_id' => ['nullable', 'exists:titles,id']
+        ]);
+
+        $professor = Professor::create($data);
+
+        return [
+            'message' => 'Professor Created',
+            'status' => 200,
+            'professor' => $professor
+        ];
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Professor $professor)
+    public function show(string | int $id)
     {
-        //
+        try {
+            $professor = Professor::findOrFail((int)$id);
+            
+            return [
+                'status' => 200,
+                'professor' => $professor->with('title')
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Professor not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Professor $professor)
+    public function update(Request $request, string | int $id)
     {
-        //
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string'],
+            'firstname' => ['nullable', 'string'],
+            'title_id' => ['nullable', 'exists:titles,id']
+        ]);
+
+        try {
+            $professor = Professor::findOrFail((int)$id);
+            $data['id'] = $professor->id;
+
+            Professor::update($data);
+
+            return [
+                'message' => 'Professor Created',
+                'status' => 200,
+                'professor' => Professor::find((int)$id)->with('title')
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Professor not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Professor $professor)
+    public function destroy(string | int $id)
     {
-        //
+        try {
+            
+            Professor::destroy((int)$id);
+            return [
+                'message' => 'Professor Deleted',
+                'status' => 200,
+            ];
+        }
+        catch(Exception $e){
+            return [
+                'message' => 'Professor not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 }
