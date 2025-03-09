@@ -6,6 +6,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\ProfessorController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TitleController;
 use App\Models\ClassRoom;
 use App\Models\Course;
@@ -25,7 +26,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('guest:sanct
 Route::delete('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
-Route::apiResource('timetable', Timetable::class)->middleware('auth:sanctum');
+Route::apiResource('timetable', TimetableController::class)->middleware('auth:sanctum');
 Route::apiResource('professor', ProfessorController::class)->middleware('auth:sanctum');
 Route::apiResource('classroom', ClassRoomController::class)->middleware('auth:sanctum');
 Route::apiResource('course', CourseController::class)->middleware('auth:sanctum');
