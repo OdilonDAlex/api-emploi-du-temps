@@ -24,7 +24,7 @@ class CourseController extends Controller
         $data = $request->validate([
             'duration' => ['nullable', 'integer'],
             'subject_id' => ['required', 'exists:subjects,id'],
-            'user_id' => ['required', 'exists:users,id']
+            'timetable_id' => ['required', 'exists:timetables,id']
         ]);
 
         $course = Course::create($data);
