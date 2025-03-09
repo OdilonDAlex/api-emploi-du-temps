@@ -69,7 +69,7 @@ class Graph
 
         $arrayObjectClassRoom = new ArrayObject($classrooms);
         while (count($courses) !== 0) {
-            $classroomCopy = array($arrayObjectClassRoom->getArrayCopy());
+            $classroomCopy = $arrayObjectClassRoom->getArrayCopy();
 
             usort($courses, function (Course $a, Course $b) {
 
@@ -96,6 +96,7 @@ class Graph
                 if (! $linked) $x[] = $course;
             }
 
+
             $x_with_class = array();
 
             usort($x, function (Course $a, Course $b) {
@@ -107,11 +108,12 @@ class Graph
 
                 return $sumLevelA >= $sumLevelB ? -1 : 1;
             });
-
+            
             usort($classroomCopy, function (ClassRoom $a, ClassRoom $b) {
                 return $a->capacity >= $b->capacity ? -1 : 1;
             });
-
+            
+            
             foreach ($x as $course) {
                 if (count($classroomCopy) === 0) break;
 
@@ -144,15 +146,17 @@ class Graph
                 }
             }
 
-            foreach ($x_with_class as $course) {
+            foreach ($x_with_class as $courseAndClassTuple) {
                 try {
-                    $courses = array_filter($courses, fn($c) => $c !== $course);
+                    $courses = array_filter($courses, fn($c) => $c !== $courseAndClassTuple[0]);
                 } catch (Exception $e) {
                     // 
                 }
             }
 
-            if (count($x_with_class) > 0) $stables[] = $x_with_class;
+            if (count($x_with_class) > 0){
+                $stables[] = $x_with_class;
+            }
         }
         return $stables;
     }

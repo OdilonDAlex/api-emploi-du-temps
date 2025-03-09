@@ -33,13 +33,14 @@ Route::apiResource('title', TitleController::class)->middleware('auth:sanctum');
 
 
 Route::get('/graph', function(Request $request) {
-    $courses = Course::all();
-    $classrooms = ClassRoom::all();
+    $courses = Course::limit(10)->get()->all();
+
+    $classrooms = ClassRoom::limit(3)->get()->all();
     $g = new Graph();
 
     foreach($courses as $course){
         $g->addVertex($course);
     }
 
-    return $g->colorize($classrooms);
+    return dd($g->colorize($classrooms));
 });
