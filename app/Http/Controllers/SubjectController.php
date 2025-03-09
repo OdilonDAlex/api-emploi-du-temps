@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Level;
+use App\Models\Professor;
 use App\Models\Subject;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,8 +14,47 @@ class SubjectController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {   
-        $level = $request->query('level');
+    {
+        $levelId = $request->query('level_id');
+        $levelName = $request->query('level');
+        $professorId = $request->query('professor_id');
+        $professorName = $request->query('professor');
+
+        $professor = null;
+        $warnings = array();
+        if ($professorId) {
+            $professor = Professor::find((int)$professorId);
+        } else if ($professorName) {
+            $professor = Professor::whereRaw('name LIKE "%' . $professorName . '%" OR firstname LIKE "%' . $professorName . '%')->first();
+
+            if (! (isset($professor) && $professor !== null)) {
+                $warnings[] = 'Professor with name or firstname: ' . $professorName . ' doesn\'t exists';
+            }
+        }
+
+        if ($levelId) {
+            $level = Level::find((int)$levelId);
+
+            if (isset($level) && $level !== null) {
+                if ((isset($professor) && $professor !== null)) {
+                    return $level->subjects()->where('professor_id', $professor->id)->get()->all();
+                }
+                return $level->subjects()->get()->all();
+            }
+        }
+
+        if ($levelName && $levelName !== "") {
+            $level = Level::where('name', $levelName)->first();
+
+            if (isset($level) && $level !== null) {
+                if ((isset($professor) && $professor !== null)) {
+                    return $level->subjects()->where('professor_id', $professor->id)->get()->all();
+                }
+                return $level->subjects()->get()->all();
+            }
+            $warnings[] = 'Level with name: ' . $levelName . ' doesn\'t exists';
+        }
+
         return Subject::all();
     }
 
@@ -102,6 +143,30 @@ class SubjectController extends Controller
                 'message' => 'Subject not found',
                 'status' => 422,
                 'errors' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function link(string | int $subjectId, string | int $levelId, Request $request)
+    {
+        try {
+            $subject = Subject::findOrFail((int)$subjectId);
+            $level = Level::findOrFail((int)$levelId);
+
+            $subject->levels()->attach($level);
+
+            $subject->save();
+
+            return [
+                'message' => 'subject ' . $subject->name . ' linked to level ' . $level->name,
+                'status' => 201,
+                'subject' => $subject,
+                'level' => $level
+            ];
+        } catch (Exception $e) {
+            return [
+                'message' => 'Unexcepted Error',
+                'status' => 422,
             ];
         }
     }

@@ -33,6 +33,8 @@ Route::apiResource('level', LevelController::class)->middleware('auth:sanctum');
 Route::apiResource('subject', SubjectController::class)->middleware('auth:sanctum');
 Route::apiResource('title', TitleController::class)->middleware('auth:sanctum');
 
+Route::patch('/subject/{subjectId}/link/level/{levelId}', [SubjectController::class, 'link'])->middleware('auth:sanctum');
+
 
 Route::get('/graph', function(Request $request) {
     $courses = Course::all();

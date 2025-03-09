@@ -39,15 +39,24 @@ class LevelController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string | int $id)
+    public function show(Request $request, string | int $id)
     {
+
+        $withSubjects = $request->query('with_subjects');
+
         try {
             $level = Level::findOrFail((int)$id);
 
-            return [
+            $response = [
                 'status' => 200,
                 'level' => $level->load('preferenceClassRoom'),
             ];
+
+            if ($withSubjects == '1') {
+                $response['subjects'] = $level->subjects()->get()->all();
+            }
+
+            return $response;
         } catch (Exception $e) {
             return [
                 'message' => 'Level not found',
