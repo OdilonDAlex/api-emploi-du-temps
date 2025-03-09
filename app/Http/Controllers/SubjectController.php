@@ -25,7 +25,7 @@ class SubjectController extends Controller
         if ($professorId) {
             $professor = Professor::find((int)$professorId);
         } else if ($professorName) {
-            $professor = Professor::whereRaw('name LIKE "%' . $professorName . '%" OR firstname LIKE "%' . $professorName . '%')->first();
+            $professor = Professor::whereRaw('name LIKE "%' . $professorName . '%" OR firstname LIKE "%' . $professorName . '%"')->first();
 
             if (! (isset($professor) && $professor !== null)) {
                 $warnings[] = 'Professor with name or firstname: ' . $professorName . ' doesn\'t exists';
