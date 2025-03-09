@@ -4,6 +4,9 @@ namespace App\Models;
 
 use ArrayObject;
 use Exception;
+use Hamcrest\Core\IsCollectionContaining;
+
+use function PHPUnit\Framework\isArray;
 
 class Graph
 {
@@ -68,6 +71,7 @@ class Graph
         $stables = array();
 
         $arrayObjectClassRoom = new ArrayObject($classrooms);
+
         while (count($courses) !== 0) {
             $classroomCopy = $arrayObjectClassRoom->getArrayCopy();
 
@@ -108,12 +112,13 @@ class Graph
 
                 return $sumLevelA >= $sumLevelB ? -1 : 1;
             });
-            
+
+
             usort($classroomCopy, function (ClassRoom $a, ClassRoom $b) {
                 return $a->capacity >= $b->capacity ? -1 : 1;
             });
-            
-            
+
+
             foreach ($x as $course) {
                 if (count($classroomCopy) === 0) break;
 
@@ -154,7 +159,7 @@ class Graph
                 }
             }
 
-            if (count($x_with_class) > 0){
+            if (count($x_with_class) > 0) {
                 $stables[] = $x_with_class;
             }
         }

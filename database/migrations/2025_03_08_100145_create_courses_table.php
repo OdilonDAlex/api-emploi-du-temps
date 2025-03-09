@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->integer('duration');
-            $table->date('weekOf');
             $table->foreignIdFor(Subject::class, 'subject_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

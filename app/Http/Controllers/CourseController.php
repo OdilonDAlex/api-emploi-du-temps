@@ -24,7 +24,6 @@ class CourseController extends Controller
         $data = $request->validate([
             'duration' => ['nullable', 'integer'],
             'subject_id' => ['required', 'exists:subjects,id'],
-            'weekOf' => 'date',
             'user_id' => ['required', 'exists:users,id']
         ]);
 
@@ -66,7 +65,6 @@ class CourseController extends Controller
         $data = $request->validate([
             'duration' => ['nullable', 'integer'],
             'subject_id' => ['nullable', 'exists:subjects,id'],
-            'weekOf' => ['nullable', 'date'],
         ]);
 
         try {

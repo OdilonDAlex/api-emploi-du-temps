@@ -11,8 +11,9 @@ class SubjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index(Request $request)
+    {   
+        $level = $request->query('level');
         return Subject::all();
     }
 

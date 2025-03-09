@@ -14,7 +14,6 @@ class Course extends Model
     protected $fillable = [
         'duration',
         'subject_id',
-        'weekOf',
         'user_id'
     ];
 

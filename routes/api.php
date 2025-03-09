@@ -33,9 +33,9 @@ Route::apiResource('title', TitleController::class)->middleware('auth:sanctum');
 
 
 Route::get('/graph', function(Request $request) {
-    $courses = Course::limit(10)->get()->all();
+    $courses = Course::all();
 
-    $classrooms = ClassRoom::limit(3)->get()->all();
+    $classrooms = ClassRoom::all()->all();
     $g = new Graph();
 
     foreach($courses as $course){
