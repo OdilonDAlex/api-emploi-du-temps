@@ -48,7 +48,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function timetables(): HasMany {
-        return $this->hasMany(Timetable::class, 'author_id');
-    }
+    // public function timetables(): HasMany {
+    //     return $this->hasMany(Timetable::class, 'author_id');
+    // }
 }

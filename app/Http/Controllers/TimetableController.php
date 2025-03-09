@@ -22,7 +22,6 @@ class TimetableController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'author_id' => ['required', 'exists:users,id'],
             'weekOf' => ['required', 'date'],
         ]);
 

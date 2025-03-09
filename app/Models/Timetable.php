@@ -12,15 +12,10 @@ class Timetable extends Model
     /** @use HasFactory<\Database\Factories\TimetableFactory> */
 
     use HasFactory;
-    protected $fillable = ['author_id', 'weekOf'];
+    protected $fillable = ['weekOf'];
 
     public function courses(): HasMany
     {
         return $this->hasMany(Course::class, 'timetable_id');
-    }
-
-    public function author(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'author_id');
     }
 }

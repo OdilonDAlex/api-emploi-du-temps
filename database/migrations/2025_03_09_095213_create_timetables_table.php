@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('timetables', function (Blueprint $table) {
             $table->id();
             $table->date('weekOf');
-            $table->foreignIdFor(User::class, 'author_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

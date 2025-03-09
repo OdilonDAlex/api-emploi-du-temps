@@ -16,9 +16,9 @@ use App\Models\Timetable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('guest:sanctum');
@@ -26,15 +26,15 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('guest:sanct
 Route::delete('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
-Route::apiResource('timetable', TimetableController::class)->middleware('auth:sanctum');
-Route::apiResource('professor', ProfessorController::class)->middleware('auth:sanctum');
-Route::apiResource('classroom', ClassRoomController::class)->middleware('auth:sanctum');
-Route::apiResource('course', CourseController::class)->middleware('auth:sanctum');
-Route::apiResource('level', LevelController::class)->middleware('auth:sanctum');
-Route::apiResource('subject', SubjectController::class)->middleware('auth:sanctum');
-Route::apiResource('title', TitleController::class)->middleware('auth:sanctum');
+Route::apiResource('timetable', TimetableController::class);
+Route::apiResource('professor', ProfessorController::class);
+Route::apiResource('classroom', ClassRoomController::class);
+Route::apiResource('course', CourseController::class);
+Route::apiResource('level', LevelController::class);
+Route::apiResource('subject', SubjectController::class);
+Route::apiResource('title', TitleController::class);
 
-Route::patch('/subject/{subjectId}/link/level/{levelId}', [SubjectController::class, 'link'])->middleware('auth:sanctum');
+Route::patch('/subject/{subjectId}/link/level/{levelId}', [SubjectController::class, 'link']);
 
 
 Route::get('/graph', function(Request $request) {
