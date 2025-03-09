@@ -11,6 +11,7 @@ use App\Models\ClassRoom;
 use App\Models\Course;
 use App\Models\Graph;
 use App\Models\Professor;
+use App\Models\Timetable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('guest:sanct
 Route::delete('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
+Route::apiResource('timetable', Timetable::class)->middleware('auth:sanctum');
 Route::apiResource('professor', ProfessorController::class)->middleware('auth:sanctum');
 Route::apiResource('classroom', ClassRoomController::class)->middleware('auth:sanctum');
 Route::apiResource('course', CourseController::class)->middleware('auth:sanctum');

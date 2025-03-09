@@ -1,24 +1,106 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Timetable;
+use Exception;
+use Illuminate\Http\Request;
 
-class Timetable extends Model
+class TimetableController extends Controller
 {
-    /** @use HasFactory<\Database\Factories\TimetableFactory> */
-    use HasFactory;
-
-    protected $fillable = ['author_id', 'weekOf'];
-
-    public function author(): BelongsTo{
-        return $this->belongsTo(User::class, 'author_id');
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return Timetable::all();
     }
 
-    public function courses(): HasMany {
-        return $this->hasMany(Course::class, 'timetable_id');
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'author_id' => ['required', 'exists:users,id'],
+            'weekOf' => ['required', 'date'],
+        ]);
+
+        $timetable = Timetable::create($data);
+
+        return [
+            'message' => 'Timetable Created',
+            'status' => 201,
+            'Timetable' => $timetable
+        ];
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string | int $id)
+    {
+        try {
+            $timetable = Timetable::findOrFail((int)$id);
+
+            return [
+                'status' => 200,
+                'Timetable' => $timetable->load('courses'),
+            ];
+        } catch (Exception $e) {
+            return [
+                'message' => 'Timetable not found',
+                'status' => 404,
+                'errors' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string | int $id)
+    {
+        $data = $request->validate([
+            'weekOf' => ['nullable', 'date']
+        ]);
+
+        try {
+            $timetable = Timetable::findOrFail((int)$id);
+            $timetable->update($data);
+
+            return [
+                'message' => 'Timetable Updated',
+                'status' => 200,
+                'Timetable' => $timetable->fresh()
+            ];
+        } catch (Exception $e) {
+            return [
+                'message' => 'Timetable not found',
+                'status' => 404,
+                'errors' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string | int $id)
+    {
+        try {
+
+            Timetable::destroy((int)$id);
+            return [
+                'message' => 'Timetable Deleted',
+                'status' => 200,
+            ];
+        } catch (Exception $e) {
+            return [
+                'message' => 'Timetable not found',
+                'status' => 422,
+                'errors' => $e->getMessage()
+            ];
+        }
     }
 }
