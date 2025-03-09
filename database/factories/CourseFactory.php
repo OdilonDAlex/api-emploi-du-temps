@@ -21,7 +21,6 @@ class CourseFactory extends Factory
         return [
             'duration' => 4,
             'subject_id' => random_int(1, $subjects),
-            'weekOf' => '2025-03-08',
             'user_id' => 1
         ];
     }

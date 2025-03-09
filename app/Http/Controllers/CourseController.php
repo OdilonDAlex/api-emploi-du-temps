@@ -46,7 +46,7 @@ class CourseController extends Controller
 
             return [
                 'status' => 200,
-                'Course' => $course->with('createdby'),
+                'Course' => $course->with('timetable'),
             ];
         } catch (Exception $e) {
             return [

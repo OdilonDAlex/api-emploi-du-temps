@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\User;
+use App\Models\Timetable;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->foreignIdFor(User::class, 'user_id')->constrained()->nullOnDelete();
+            $table->foreignIdFor(Timetable::class, 'timetable_id')->constrained()->cascadeOnDelete();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->dropConstrainedForeignIdFor(User::class, 'user_id');
+            $table->dropConstrainedForeignIdFor(Timetable::class, 'timetable_id');
         });
     }
 };
