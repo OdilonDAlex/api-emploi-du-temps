@@ -19,6 +19,7 @@ class SubjectController extends Controller
         $levelName = $request->query('level');
         $professorId = $request->query('professor_id');
         $professorName = $request->query('professor');
+        $withLevel = $request->query('withLevel');
 
         $professor = null;
         $warnings = array();
@@ -55,6 +56,9 @@ class SubjectController extends Controller
             $warnings[] = 'Level with name: ' . $levelName . ' doesn\'t exists';
         }
 
+        if((int)$withLevel === 1) {
+            return Subject::with('levels')->get()->all();
+        }
         return Subject::all();
     }
 

@@ -36,7 +36,6 @@ Route::apiResource('title', TitleController::class);
 
 Route::patch('/subject/{subjectId}/link/level/{levelId}', [SubjectController::class, 'link']);
 
-
 Route::get('/graph', function(Request $request) {
     $courses = Course::all();
 
