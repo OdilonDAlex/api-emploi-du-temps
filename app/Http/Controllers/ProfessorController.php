@@ -11,8 +11,11 @@ class ProfessorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $withSubject = $request->query('withSubject');
+
+        if((int)$withSubject === 1) return Professor::with('subjects')->get()->all();
         return Professor::all();
     }
 
