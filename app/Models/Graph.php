@@ -2,12 +2,6 @@
 
 namespace App\Models;
 
-use ArrayObject;
-use Exception;
-use Hamcrest\Core\IsCollectionContaining;
-
-use function PHPUnit\Framework\isArray;
-
 class Graph
 {
 
@@ -94,5 +88,20 @@ class Graph
         }
 
         return $count / 2;
+    }
+
+    public function getNeighbors(Course $course): array
+    {
+        $results = array();
+        foreach ($this->links as $link) {
+            if (in_array($course, $link)) {
+                $neighbor = $link[0] === $course ? $link[1] : $link[0];
+
+                if (!in_array($neighbor, $results)) {
+                    $results[] = $neighbor;
+                }
+            }
+        }
+        return $results;
     }
 }
