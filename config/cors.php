@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000'), 'http://localhost:5173'],
 
-    'allowed_origins_patterns' => [ '/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]{2,4}/'],
+    'allowed_origins_patterns' => [ '/^https?:\/\/(localhost|127\.0\.0\.1):[0-9]{2,4}$/'],
 
     'allowed_headers' => ['*'],
 

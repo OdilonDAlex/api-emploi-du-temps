@@ -17,6 +17,11 @@ class Course extends Model
         'timetable_id'
     ];
 
+    /**
+     * @var Array<int, Domain> $domains
+     */
+    public $domains = array();
+
     public function subject(): BelongsTo {
         return $this->belongsTo(Subject::class, 'subject_id');
     }
