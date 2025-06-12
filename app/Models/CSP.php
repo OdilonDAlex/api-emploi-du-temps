@@ -53,7 +53,7 @@ class CSP
             if (CSP::compatible($course, $domain)) {
                 $assignation[(string)$course->id] = $domain;
 
-                $result = CSP::inference();
+                $result = CSP::inference($assignation, $graph);
 
                 if ($result['ok']) {
                     $graph = $result['graph'];
@@ -66,13 +66,42 @@ class CSP
         return false;
     }
 
-    public static function revise(Course $toAC, Course $useToAC, Graph $graph)
+    public static function revise(Course $toAC, Course $useToAC)
     {
+        $changed = false;
+        $toRemove = array();
+
         foreach ($toAC->domains as $toACDomain) {
-            $contraintViolatin = true;
+            $contraintViolation = true;
             foreach ($useToAC->domains as $useToACDomain) {
+                /**
+                 * Verification des contraintes mêmes professeur ou même classe
+                 */
+                if (! CSP::sameTimeDomain($toACDomain, $useToACDomain)) {
+                    $contraintViolation = false;
+                    break;
+                }
+            }
+
+            if ($contraintViolation) {
+                $toRemove[] = $toACDomain;
+                $changed = true;
             }
         }
+
+        if ($changed) {
+            $toAC->domains = array_filter($toAC->domains, fn($d) => !in_array($d, $toRemove));
+        }
+
+        return [
+            'reviseCourse' => $toAC,
+            'changed' => $changed
+        ];
+    }
+
+    public static function sameTimeDomain(Domain $a, Domain $b): bool
+    {
+        return ($a->day === $b->day) && ($a->dayPart === $b->dayPart);
     }
 
     public static function compatibleAssignation(Course $A, Domain $Adomain, Course $B, Graph $graph): bool
@@ -103,17 +132,40 @@ class CSP
     }
 
     // AC3 algorithm
-    public static function inference(Graph $graph)
+    public static function inference(array $assignation, Graph $graph)
     {
         $arcs = $graph->links;
 
         while (count($arcs) > 0) {
             $link = array_shift($arcs);
 
+            /**
+             * Mettre $link sous forme AC ( Arc-Consistency) ( Arc Compatible )
+             */
             $reviseResult = CSP::revise($link[0], $link[1], $graph);
+
+            if ($reviseResult['changed']) {
+                $link[0] = $reviseResult['reviseCourse'];
+
+                if (count($link[0]->domains) === 0) {
+                    return [
+                        'ok' => false,
+                    ];
+                }
+
+                $allNeighbors = $graph->getNeighbors($link[0]);
+                $unAssignedNeighbors = CSP::removeAssignedVar($assignation, $allNeighbors);
+
+                foreach ($unAssignedNeighbors as $n) {
+                    $arcs[] = [$n, $link[0]];
+                }
+            }
         }
 
-        return true;
+        return [
+            'ok' => true,
+            'graph' => $graph
+        ];
     }
 
     public static function unassignedVar(array $assignation, Graph $graph): Course
@@ -145,7 +197,7 @@ class CSP
         return count($assignation) === count($graph->courses);
     }
 
-    public static function domainValues(Course $course, Graph $graph, array $assignation): Domain
+    public static function domainValues(Course $course, Graph $graph, array $assignation): array
     {
         $allNeighbors = $graph->getNeighbors($course);
         $unAssignedNeighbors = CSP::removeAssignedVar($assignation, $allNeighbors);
@@ -168,11 +220,14 @@ class CSP
 
         usort($domainValues, $lcv);
 
-        return $domainValues[0];
+        return $domainValues;
     }
 
+    /**
+     * Verification de la contrainte de nombre d'etudiant
+     */
     public static function compatible(Course $course, Domain $domain): bool
     {
-        return true;
+        return $course->getStudentsNumber() <= $domain->classroom->capacity;
     }
 }

@@ -29,4 +29,15 @@ class Course extends Model
     public function timetable(): BelongsTo {
         return $this->belongsTo(Timetable::class, 'timetable_id');
     }
+
+    public function getStudentsNumber(): int {
+        $result = 0;
+        $levels = $this->subject->levels();
+
+        foreach($levels as $level) {
+            $result += $level->studentsNumber;
+        }
+
+        return $result;
+    }
 }
