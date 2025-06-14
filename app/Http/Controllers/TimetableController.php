@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\DayPart;
 use App\Models\Course;
 use App\Models\CSP;
 use App\Models\Graph;
@@ -133,6 +134,46 @@ class TimetableController extends Controller
             Logger::log($course->subject->name . ": Nothing");
         }
 
-        return $result;
+        $formattedResult = TimetableController::formatResult($g->courses, $result['assignation']);
+
+        return [
+            'solved' => $result['solved'],
+            'solution' => $formattedResult
+        ];
+    }
+
+    public static function formatResult(array $courses, array $assignation)
+    {
+        $results = array();
+        $days = [
+            "Lundi",
+            "Mardi",
+            "Mercredi",
+            "Jeudi",
+            "Vendredi"
+        ];
+
+        foreach ($courses as $course) {
+
+            if (array_key_exists((string)$course->id, $assignation) === false) {
+                continue;
+            }
+
+            $value = $assignation[(string)$course->id];
+
+            /**
+             * @var array<int, Level> $levels
+             */
+            $levels = $course->subject->levels()->get()->all();
+            $results[] = [
+                'course' => $course->subject->name,
+                'levels' => array_reduce($levels, fn($carry, $item) => $carry === null ? $item->name : $carry . ", " . $item->name),
+                'day' => $days[(int)$value->day->value],
+                'dayPart' => $value->dayPart === DayPart::MORNING ? "Matin" : "Après-midi",
+                "classroom" => $value->classroom->name
+            ];
+        }
+
+        return $results;
     }
 }
