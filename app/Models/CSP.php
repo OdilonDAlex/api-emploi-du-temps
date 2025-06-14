@@ -47,7 +47,7 @@ class CSP
 
     public static function backtracking(array $assignation, Graph $graph)
     {
-        if (CSP::complete($assignation, $graph)) return $assignation;
+        if (CSP::complete($assignation, $graph)) return ['solved' => true, 'assignation' => $assignation];
 
         $course = CSP::unassignedVar($assignation, $graph);
 
@@ -75,16 +75,7 @@ class CSP
             continue;
         }
 
-        Logger::log("Impossible problem: ");
-        foreach ($assignation as $k => $a) {
-            Logger::log((Course::find((int)$k))->subject->name . ": (" . $a->day->value . "-" . $a->dayPart->value . "-" . $a->classroom->name . ")");
-        }
-
-        foreach (CSP::removeAssignedVar($assignation, $graph->courses) as $course) {
-            Logger::log($course->subject->name . ": Nothing");
-        }
-
-        return false;
+        return ['solved' => false, 'assignation' => $assignation];
     }
 
     public static function revise(Course $toAC, Course $useToAC)
@@ -250,6 +241,7 @@ class CSP
          * LCV: Least-Contraining Values
          */
         $lcv = function (Domain $a, Domain $b) use ($unAssignedNeighbors): int {
+
             $usingADomainImpactCount = 0;
             $usingBDomainImpactCount = 0;
 
@@ -261,7 +253,25 @@ class CSP
             return $usingADomainImpactCount < $usingBDomainImpactCount ? -1 : 1;
         };
 
-        usort($domainValues, $lcv);
+
+        /**
+         * Changement de methode pour la récupération du prochaine domaine a assigné,
+         * Trié par day - dayPart - classroomCapacity
+         */
+        $sortFunc = function (Domain $a, Domain $b): int {
+
+            if ($a->day === $b->day) {
+
+                if ($a->dayPart == $b->dayPart) {
+                    return $a->classroom->capacity < $b->classroom->capacity ? -1 : 1;
+                }
+                return $a->dayPart === DayPart::MORNING ? -1 : 1;
+            }
+
+            return $a->day->value < $b->day->value ? -1 : 1;
+        };
+
+        usort($domainValues, $sortFunc);
 
         return $domainValues;
     }

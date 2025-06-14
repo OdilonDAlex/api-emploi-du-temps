@@ -118,18 +118,21 @@ class TimetableController extends Controller
 
 
         $g = new Graph();
-        Logger::log("Courses");
-        
+
         foreach ($courses as $course) {
-            Logger::log($course->subject->name);
             $g->addCourse($course);
         }
 
-        $assignation = CSP::backtrackingSearch($g);
+        $result = CSP::backtrackingSearch($g);
+        Logger::log($result['solved'] ? 'Resolu' : 'Impossible');
+        foreach ($result['assignation'] as $k => $a) {
+            Logger::log((Course::find((int)$k))->subject->name . ": (" . $a->day->value . "-" . $a->dayPart->value . "-" . $a->classroom->name . ")");
+        }
 
-        return [
-            'status' => 200,
-            'result' => $assignation
-        ];
+        foreach (CSP::removeAssignedVar($result['assignation'], $g->courses) as $course) {
+            Logger::log($course->subject->name . ": Nothing");
+        }
+
+        return $result;
     }
 }
