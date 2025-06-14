@@ -110,20 +110,23 @@ class TimetableController extends Controller
     public function generate(Request $request, int $timetableId)
     {
         $timetable = Timetable::findOrFail((int)$timetableId);
+
+        /**
+         * @var Array<int, Course> $courses
+         */
         $courses = $timetable->courses()->get()->all();
 
+
         $g = new Graph();
+        Logger::log("Courses");
+        
         foreach ($courses as $course) {
+            Logger::log($course->subject->name);
             $g->addCourse($course);
         }
 
         $assignation = CSP::backtrackingSearch($g);
 
-        Logger::log("Results");
-
-        foreach($assignation as $k => $a) {
-            Logger::log((Course::find((int)$k))->subject->name . ": (" . $a->day->value . "-" . $a->dayPart->value . "-" . $a->classroom->name . ")");
-        }
         return [
             'status' => 200,
             'result' => $assignation

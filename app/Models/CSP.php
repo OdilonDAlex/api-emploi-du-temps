@@ -34,9 +34,9 @@ class CSP
         }
 
         // Logger::log("Graphs arcs: ");
-        foreach($graph->links as $link) {
+        foreach ($graph->links as $link) {
             // Logger::log("Arc: (" . $link[0]->subject->name. ", " . $link[1]->subject->name . ")");
-        }    
+        }
     }
 
     public static function backtrackingSearch(Graph $graph)
@@ -56,7 +56,7 @@ class CSP
         $sortedDomainValues = CSP::domainValues($course, $graph, $assignation);
 
         foreach ($sortedDomainValues as $domain) {
-            if (CSP::compatible($course, $domain)) {
+            if (CSP::compatible($course, $domain, $assignation)) {
                 $oldDomains = $course->domains;
 
                 $assignation[(string)$course->id] = $domain;
@@ -72,7 +72,18 @@ class CSP
                 $course->domains = $oldDomains;
                 unset($assignation[(string)$course->id]);
             }
+            continue;
         }
+
+        Logger::log("Impossible problem: ");
+        foreach ($assignation as $k => $a) {
+            Logger::log((Course::find((int)$k))->subject->name . ": (" . $a->day->value . "-" . $a->dayPart->value . "-" . $a->classroom->name . ")");
+        }
+
+        foreach (CSP::removeAssignedVar($assignation, $graph->courses) as $course) {
+            Logger::log($course->subject->name . ": Nothing");
+        }
+
         return false;
     }
 
@@ -258,8 +269,11 @@ class CSP
     /**
      * Verification de la contrainte de nombre d'etudiant
      */
-    public static function compatible(Course $course, Domain $domain): bool
+    public static function compatible(Course $course, Domain $domain, array $assignation): bool
     {
-        return $course->getStudentsNumber() <= $domain->classroom->capacity;
+        $capacityViolation =  $course->getStudentsNumber() > $domain->classroom->capacity;
+        $alreadyAssignedDomain = in_array($domain, $assignation);
+
+        return (! ($capacityViolation || $alreadyAssignedDomain));
     }
 }
