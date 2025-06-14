@@ -19,7 +19,7 @@ class CSP
         $domains = array();
         foreach (WeekDay::cases() as $day) {
             foreach (DayPart::cases() as $dayPart) {
-                $classrooms = ClassRoom::all()->toArray();
+                $classrooms = ClassRoom::all();
                 foreach ($classrooms as $classroom) {
                     $domains[] = new Domain($day, $dayPart, $classroom);
                 }
@@ -33,12 +33,16 @@ class CSP
             $course->domains = $domains;
         }
 
-        return $graph;
+        // Logger::log("Graphs arcs: ");
+        foreach($graph->links as $link) {
+            // Logger::log("Arc: (" . $link[0]->subject->name. ", " . $link[1]->subject->name . ")");
+        }    
     }
 
     public static function backtrackingSearch(Graph $graph)
     {
-        return CSP::backtracking(array(), CSP::prepareForCSP($graph));
+        CSP::prepareForCSP($graph);
+        return CSP::backtracking(array(), $graph);
     }
 
     public static function backtracking(array $assignation, Graph $graph)
@@ -47,19 +51,25 @@ class CSP
 
         $course = CSP::unassignedVar($assignation, $graph);
 
+        // Logger::log((string)count($assignation) . " " . $course->subject->name);
+
         $sortedDomainValues = CSP::domainValues($course, $graph, $assignation);
 
         foreach ($sortedDomainValues as $domain) {
             if (CSP::compatible($course, $domain)) {
+                $oldDomains = $course->domains;
+
                 $assignation[(string)$course->id] = $domain;
 
-                $result = CSP::inference($assignation, $graph);
+                $course->domains = [$domain];
+
+                $result = CSP::inference($assignation, clone ($graph));
 
                 if ($result['ok']) {
-                    $graph = $result['graph'];
                     return CSP::backtracking($assignation, $graph);
                 }
 
+                $course->domains = $oldDomains;
                 unset($assignation[(string)$course->id]);
             }
         }
@@ -71,6 +81,7 @@ class CSP
         $changed = false;
         $toRemove = array();
 
+        // Logger::log("Revise: (" . $toAC->subject->name . ", " . $useToAC->subject->name . ")");
         foreach ($toAC->domains as $toACDomain) {
             $contraintViolation = true;
             foreach ($useToAC->domains as $useToACDomain) {
@@ -89,8 +100,16 @@ class CSP
             }
         }
 
+
         if ($changed) {
             $toAC->domains = array_filter($toAC->domains, fn($d) => !in_array($d, $toRemove));
+
+            // Logger::log("Removed: ");
+            foreach ($toRemove as $domain) {
+                // Logger::log("(" . $domain->day->value . ", " . $domain->dayPart->value . ", "  . $domain->classroom->name . ")");
+            }
+
+            // Logger::log("From: " . $toAC->subject->name);
         }
 
         return [
@@ -134,18 +153,30 @@ class CSP
     // AC3 algorithm
     public static function inference(array $assignation, Graph $graph)
     {
+        /**
+         * @var Array<int, Array<int, Course>> $arcs
+         */
         $arcs = $graph->links;
+        $iteration = 0;
 
         while (count($arcs) > 0) {
+
+            // Logger::log("Arcs count: " . count($arcs));
+
             $link = array_shift($arcs);
 
+            // Logger::log("After shift: " . count($arcs));
+
+            // Logger::log("Shifted link: " . "(" . $link[0]->subject->name . ", " . $link[1]->subject->name . " )");
+
+            $iteration++;
             /**
              * Mettre $link sous forme AC ( Arc-Consistency) ( Arc Compatible )
              */
-            $reviseResult = CSP::revise($link[0], $link[1], $graph);
+
+            $reviseResult = CSP::revise($link[0], $link[1]);
 
             if ($reviseResult['changed']) {
-                $link[0] = $reviseResult['reviseCourse'];
 
                 if (count($link[0]->domains) === 0) {
                     return [
@@ -171,7 +202,8 @@ class CSP
     public static function unassignedVar(array $assignation, Graph $graph): Course
     {
         $unAssignedVar = CSP::removeAssignedVar($assignation, $graph->courses);
-        if (count($unAssignedVar)) {
+
+        if (count($unAssignedVar) == 0) {
             throw new Exception("Aucun variable qui n'ont pas de valeur trouver, et pourtant l'algorithme n'est pas fini");
         }
 

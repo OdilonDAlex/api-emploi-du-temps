@@ -16,7 +16,7 @@ class Domain
     {
         $this->day = $day;
         $this->dayPart = $dayPart;
-        $this->$classroom = $classroom;
+        $this->classroom = $classroom;
     }
 
     public function equals(Domain $domain): bool

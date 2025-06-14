@@ -10,23 +10,33 @@ class Graph
 
     public function addCourse(Course $newCourse)
     {
+
+        // Logger::log("Add Course: " . $newCourse->subject->name);
         if (count($this->courses) === 0) {
+            // Logger::log("Courses empty");
             $this->courses[] = $newCourse;
             return;
         }
+
+
+        if (in_array($newCourse, $this->courses)) {
+            // Logger::log("Courses exists");
+            return;
+        };
 
         /**
          * @var Subject $subject
          */
         $newCourseSubject = $newCourse->subject;
-
         $newCourseProfessor = $newCourseSubject->professor;
-        $newCourseLevels = $newCourseSubject->levels()->get()->all();
+        $newCourseLevelsId = $newCourseSubject->levels()->pluck('id')->toArray();
 
         /**
          * @var Course $course
          */
         foreach ($this->courses as $course) {
+
+            // Logger::log("Comparing: " . $newCourseSubject->name . " AND " . $course->subject->name);
             /**
              * @var Subject $subject;
              */
@@ -34,16 +44,20 @@ class Graph
 
             /* Contrainte pour la même professeur */
             if (
-                $subject->professor === $newCourseProfessor
+                $subject->professor->id === $newCourseProfessor->id
             ) {
+                // Logger::log("Same Professor: " . $newCourseSubject->name . " AND " . $course->subject->name);
                 $this->addLink($course, $newCourse);
                 $this->addLink($newCourse, $course);
                 continue;
             } else {
                 /** Contrainte pour la même niveau */
-                $subjectLevels = $subject->levels()->get()->all();
-                foreach ($subjectLevels as $level) {
-                    if (in_array($level, $newCourseLevels)) {
+                $subjectLevelsId  = $subject->levels()->pluck('id')->toArray();
+
+                // Logger::log("Not Same Professor, comparing levels: " . $newCourseSubject->name . " AND " . $course->subject->name);
+                foreach ($subjectLevelsId as $levelId) {
+                    if (in_array($levelId, $newCourseLevelsId)) {
+                        // Logger::log("Same Level: " . $newCourseSubject->name . " AND " . $course->subject->name);
                         $this->addLink($course, $newCourse);
                         $this->addLink($newCourse, $course);
                         break;

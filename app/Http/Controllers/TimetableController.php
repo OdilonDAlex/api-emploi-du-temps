@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
+use App\Models\CSP;
+use App\Models\Graph;
+use App\Models\Logger;
 use App\Models\Timetable;
 use Exception;
 use Illuminate\Http\Request;
@@ -101,5 +105,28 @@ class TimetableController extends Controller
                 'errors' => $e->getMessage()
             ];
         }
+    }
+
+    public function generate(Request $request, int $timetableId)
+    {
+        $timetable = Timetable::findOrFail((int)$timetableId);
+        $courses = $timetable->courses()->get()->all();
+
+        $g = new Graph();
+        foreach ($courses as $course) {
+            $g->addCourse($course);
+        }
+
+        $assignation = CSP::backtrackingSearch($g);
+
+        Logger::log("Results");
+
+        foreach($assignation as $k => $a) {
+            Logger::log((Course::find((int)$k))->subject->name . ": (" . $a->day->value . "-" . $a->dayPart->value . "-" . $a->classroom->name . ")");
+        }
+        return [
+            'status' => 200,
+            'result' => $assignation
+        ];
     }
 }

@@ -36,15 +36,4 @@ Route::apiResource('title', TitleController::class);
 
 Route::patch('/subject/{subjectId}/link/level/{levelId}', [SubjectController::class, 'link']);
 
-Route::get('/graph', function(Request $request) {
-    $courses = Course::all();
-
-    $classrooms = ClassRoom::all()->all();
-    $g = new Graph();
-
-    foreach($courses as $course){
-        $g->addVertex($course);
-    }
-
-    return dd($g->colorize($classrooms));
-});
+Route::get('/generate/{timetableId}', [TimetableController::class, 'generate']);
