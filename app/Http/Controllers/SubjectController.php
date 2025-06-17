@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicTrack;
 use App\Models\Level;
 use App\Models\Professor;
 use App\Models\Subject;
@@ -15,51 +16,24 @@ class SubjectController extends Controller
      */
     public function index(Request $request)
     {
-        $levelId = $request->query('level_id');
-        $levelName = $request->query('level');
+        $academicTrackId = $request->query('academicTrackId');
         $professorId = $request->query('professor_id');
-        $professorName = $request->query('professor');
-        $withLevel = $request->query('withLevel');
 
-        $professor = null;
-        $warnings = array();
-        if ($professorId) {
-            $professor = Professor::find((int)$professorId);
-        } else if ($professorName) {
-            $professor = Professor::whereRaw('name LIKE "%' . $professorName . '%" OR firstname LIKE "%' . $professorName . '%"')->first();
+        $query = Subject::query();
 
-            if (! (isset($professor) && $professor !== null)) {
-                $warnings[] = 'Professor with name or firstname: ' . $professorName . ' doesn\'t exists';
-            }
+        if ($academicTrackId !== null) {
+            $query = $query->whereHas('academicTracks', function ($q) use ($academicTrackId) {
+                $q->where('academic_tracks.id', $academicTrackId);
+            });
         }
 
-        if ($levelId) {
-            $level = Level::find((int)$levelId);
-
-            if (isset($level) && $level !== null) {
-                if ((isset($professor) && $professor !== null)) {
-                    return $level->subjects()->where('professor_id', $professor->id)->get()->all();
-                }
-                return $level->subjects()->get()->all();
-            }
+        if ($professorId !== null) {
+            $query = $query->whereHas('professor', function ($q) use ($professorId) {
+                $q->where('id', $professorId);
+            });
         }
 
-        if ($levelName && $levelName !== "") {
-            $level = Level::where('name', $levelName)->first();
-
-            if (isset($level) && $level !== null) {
-                if ((isset($professor) && $professor !== null)) {
-                    return $level->subjects()->where('professor_id', $professor->id)->get()->all();
-                }
-                return $level->subjects()->get()->all();
-            }
-            $warnings[] = 'Level with name: ' . $levelName . ' doesn\'t exists';
-        }
-
-        if((int)$withLevel === 1) {
-            return Subject::with('levels')->get()->all();
-        }
-        return Subject::all();
+        return $query->get()->all();
     }
 
     /**
@@ -151,21 +125,21 @@ class SubjectController extends Controller
         }
     }
 
-    public function link(string | int $subjectId, string | int $levelId, Request $request)
+    public function link(string | int $subjectId, string | int $academictrackId, Request $request)
     {
         try {
             $subject = Subject::findOrFail((int)$subjectId);
-            $level = Level::findOrFail((int)$levelId);
+            $academicTrack = AcademicTrack::findOrFail((int)$academictrackId);
 
-            $subject->levels()->attach($level);
+            $subject->academicTracks()->attach($academicTrack);
 
             $subject->save();
 
             return [
-                'message' => 'subject ' . $subject->name . ' linked to level ' . $level->name,
+                'message' => 'subject ' . $subject->name . ' linked to academic track ' . $academicTrack->name,
                 'status' => 201,
                 'subject' => $subject,
-                'level' => $level
+                'academicTrack' => $academicTrack->load('level')
             ];
         } catch (Exception $e) {
             return [

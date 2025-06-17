@@ -17,7 +17,8 @@ class ClassRoom extends Model
         'capacity'
     ];
 
-    public function level(): HasOne {
-        return $this->hasOne(Level::class, 'classroom_id');
+    public function academicTrack(): HasOne
+    {
+        return $this->hasOne(AcademicTrack::class, 'classroom_id');
     }
 }

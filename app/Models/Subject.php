@@ -15,15 +15,18 @@ class Subject extends Model
 
     protected $fillable = ['name', 'professor_id'];
 
-    public function levels(): BelongsToMany {
-        return $this->belongsToMany(Level::class, 'level_subject', 'subject_id', 'level_id');
-    }
-
-    public function professor(): BelongsTo {
+    public function professor(): BelongsTo
+    {
         return $this->belongsTo(Professor::class, 'professor_id');
     }
 
-    public function courses(): HasMany {
+    public function courses(): HasMany
+    {
         return $this->hasMany(Course::class, 'subject_id');
+    }
+
+    public function academicTracks(): BelongsToMany
+    {
+        return $this->belongsToMany(AcademicTrack::class, 'academic_track_subject', 'subject_id', 'academic_track_id');
     }
 }

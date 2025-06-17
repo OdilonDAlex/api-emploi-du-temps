@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Level extends Model
 {
@@ -14,32 +15,10 @@ class Level extends Model
 
     protected $fillable = [
         'name',
-        'studentsNumber',
-        'classroom_id'
     ];
 
-    public function subjects(): BelongsToMany
+    public function academicTracks(): HasMany
     {
-        return $this->belongsToMany(Subject::class, 'level_subject', 'level_id', 'subject_id');
-    }
-
-    public function preferenceClassRoom(): BelongsTo
-    {
-        return $this->belongsTo(ClassRoom::class, 'classroom_id');
-    }
-
-    /**
-     * @param Array<int, ClassRoom> $classrooms
-     * @return int | null
-     */
-    public function getPreferenceClassRoomIndex($classrooms)
-    {
-        $preferenceClassRoom = $this->preferenceClassRoom;
-        foreach ($classrooms as $index => $classroom) {
-            if ($classroom === $preferenceClassRoom) {
-                return $index;
-            }
-        }
-        return null;
+        return $this->hasMany(AcademicTrack::class, 'level_id', 'id');
     }
 }

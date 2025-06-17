@@ -105,13 +105,6 @@ class CSP
 
         if ($changed) {
             $toAC->domains = array_filter($toAC->domains, fn($d) => !in_array($d, $toRemove));
-
-            // Logger::log("Removed: ");
-            foreach ($toRemove as $domain) {
-                // Logger::log("(" . $domain->day->value . ", " . $domain->dayPart->value . ", "  . $domain->classroom->name . ")");
-            }
-
-            // Logger::log("From: " . $toAC->subject->name);
         }
 
         return [
@@ -125,32 +118,6 @@ class CSP
         return ($a->day === $b->day) && ($a->dayPart === $b->dayPart);
     }
 
-    public static function compatibleAssignation(Course $A, Domain $Adomain, Course $B, Graph $graph): bool
-    {
-        foreach ($B->domains as $domain) {
-        }
-
-        return true;
-    }
-
-    public static function contraintViolation(Domain $domain, Course $course, ConstraintType $contraintType)
-    {
-
-
-        switch ($contraintType) {
-            case ConstraintType::SAME_PROFESSOR: {
-
-                    break;
-                }
-        }
-    }
-
-    public static function sameProfessorViolationAssignation(Domain $domain, Course $course)
-    {
-        foreach ($course->domain as $d) {
-            // if($domain->)
-        }
-    }
 
     // AC3 algorithm
     public static function inference(array $assignation, Graph $graph)

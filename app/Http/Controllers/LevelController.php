@@ -23,8 +23,6 @@ class LevelController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'studentsNumber' => ['required', 'integer', 'min:1'],
-            'classroom_id' => ['nullable', 'exists:classrooms,id']
         ]);
 
         $level = Level::create($data);
@@ -32,7 +30,7 @@ class LevelController extends Controller
         return [
             'message' => 'Level Created',
             'status' => 201,
-            'level' => $level->load('preferenceClassRoom')
+            'level' => $level
         ];
     }
 
