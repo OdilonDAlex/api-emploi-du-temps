@@ -29,7 +29,7 @@ class SubjectController extends Controller
 
         if ($professorId !== null) {
             $query = $query->whereHas('professor', function ($q) use ($professorId) {
-                $q->where('id', $professorId);
+                $q->where('professor.id', $professorId);
             });
         }
 
@@ -65,7 +65,7 @@ class SubjectController extends Controller
 
             return [
                 'status' => 200,
-                'subject' => $subject->load('professor'),
+                'subject' => $subject->load(['professor', 'academicTracks']),
             ];
         } catch (Exception $e) {
             return [
