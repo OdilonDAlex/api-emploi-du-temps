@@ -29,7 +29,7 @@ class Graph
          */
         $newCourseSubject = $newCourse->subject;
         $newCourseProfessor = $newCourseSubject->professor;
-        $newCourseLevelsId = $newCourseSubject->levels()->pluck('id')->toArray();
+        $newCourseAcademicTracksId = $newCourseSubject->academicTracks()->pluck('id')->toArray();
 
         /**
          * @var Course $course
@@ -52,11 +52,11 @@ class Graph
                 continue;
             } else {
                 /** Contrainte pour la même niveau */
-                $subjectLevelsId  = $subject->levels()->pluck('id')->toArray();
+                $subjectAcademicTracksId  = $subject->academicTracks()->pluck('id')->toArray();
 
                 // Logger::log("Not Same Professor, comparing levels: " . $newCourseSubject->name . " AND " . $course->subject->name);
-                foreach ($subjectLevelsId as $levelId) {
-                    if (in_array($levelId, $newCourseLevelsId)) {
+                foreach ($subjectAcademicTracksId as $levelId) {
+                    if (in_array($levelId, $newCourseAcademicTracksId)) {
                         // Logger::log("Same Level: " . $newCourseSubject->name . " AND " . $course->subject->name);
                         $this->addLink($course, $newCourse);
                         $this->addLink($newCourse, $course);

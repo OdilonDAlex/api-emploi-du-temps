@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DayPart;
+use App\Models\AcademicTrack;
 use App\Models\Course;
 use App\Models\CSP;
 use App\Models\Graph;
@@ -162,12 +163,12 @@ class TimetableController extends Controller
             $value = $assignation[(string)$course->id];
 
             /**
-             * @var array<int, Level> $levels
+             * @var array<int, AcademicTrack> $academicTracks
              */
-            $levels = $course->subject->levels()->get()->all();
+            $academicTracks = $course->subject->academicTracks()->get()->all();
             $results[] = [
                 'course' => $course->subject->name,
-                'levels' => array_reduce($levels, fn($carry, $item) => $carry === null ? $item->name : $carry . ", " . $item->name),
+                'levels' => $academicTracks[0]->level->name . ': ' .  array_reduce($academicTracks, fn($carry, $item) => $carry === null ? $item->name : $carry . ", " . $item->name),
                 'day' => $days[(int)$value->day->value],
                 'dayPart' => $value->dayPart === DayPart::MORNING ? "Matin" : "Après-midi",
                 "classroom" => $value->classroom->name
