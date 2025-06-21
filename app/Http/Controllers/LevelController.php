@@ -110,4 +110,4 @@ class LevelController extends Controller
             ];
         }
     }
-}
+    }

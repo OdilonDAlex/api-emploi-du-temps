@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('studentsNumber');
             $table->foreignIdFor(Level::class, 'level_id')->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(ClassRoom::class, 'classroom_id')->constrained()->nullable()->nullOnDelete();
+            $table->foreignIdFor(ClassRoom::class, 'classroom_id')->nullable()->contrainted()->nullOnDelete();
             $table->timestamps();
         });
     }
