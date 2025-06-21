@@ -70,9 +70,7 @@ class LevelController extends Controller
     public function update(Request $request, string | int $id)
     {
         $data = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'studentsNumber' => ['nullable', 'integer', 'min:1'],
-            'classroom_id' => ['nullable', 'exists:classrooms,id']
+            'name' => ['required', 'string', 'max:255'],
         ]);
 
         try {
