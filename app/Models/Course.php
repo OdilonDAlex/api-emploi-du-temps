@@ -32,7 +32,7 @@ class Course extends Model
 
     public function getStudentsNumber(): int {
         $result = 0;
-        $levels = $this->subject->levels()->get()->all();
+        $levels = $this->subject->academicTracks()->get()->all();
 
         foreach($levels as $level) {
             $result += $level->studentsNumber;

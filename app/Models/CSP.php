@@ -51,6 +51,7 @@ class CSP
 
         $course = CSP::unassignedVar($assignation, $graph);
 
+        
         // Logger::log((string)count($assignation) . " " . $course->subject->name);
 
         $sortedDomainValues = CSP::domainValues($course, $graph, $assignation);
