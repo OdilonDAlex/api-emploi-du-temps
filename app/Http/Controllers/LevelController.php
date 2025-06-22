@@ -13,7 +13,7 @@ class LevelController extends Controller
      */
     public function index()
     {
-        return Level::all();
+        return Level::with('academicTracks')->get()->all();
     }
 
     /**
