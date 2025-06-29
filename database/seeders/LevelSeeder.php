@@ -13,6 +13,10 @@ class LevelSeeder extends Seeder
      */
     public function run(): void
     {
-        Level::factory(10)->create();
+        foreach(['Licence 1', 'Licence 2', 'Licence 3', 'Master 1', 'Master 2'] as $levelName) {
+            Level::factory()->create([
+                'name' => $levelName,
+            ]);
+        }
     }
 }
