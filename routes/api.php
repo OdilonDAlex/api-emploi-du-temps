@@ -33,3 +33,5 @@ Route::apiResource('academic_track', AcademicTrackController::class);
 Route::patch('/subject/{subjectId}/link/academicTrack/{academictrackId}', [SubjectController::class, 'link']);
 
 Route::get('/generate/{timetableId}', [TimetableController::class, 'generate']);
+
+Route::get('/export/timetable/{timetableId}', [TimetableController::class, 'download']);

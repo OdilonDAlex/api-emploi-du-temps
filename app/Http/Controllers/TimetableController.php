@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DayPart;
+use App\Exports\TimetableExport;
 use App\Models\AcademicTrack;
 use App\Models\Course;
 use App\Models\CSP;
 use App\Models\Graph;
 use App\Models\Logger;
 use App\Models\Timetable;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Collection\Map\AssociativeArrayMap;
 
 class TimetableController extends Controller
 {
@@ -109,7 +113,7 @@ class TimetableController extends Controller
         }
     }
 
-    public function generate(Request $request, int $timetableId)
+    public function generate(int $timetableId)
     {
         $timetable = Timetable::findOrFail((int)$timetableId);
 
@@ -185,5 +189,81 @@ class TimetableController extends Controller
         }
 
         return $results;
+    }
+
+    public function download(int $id)
+    {
+        $timetable = Timetable::findOrFail($id);
+
+        $timetables = [];
+
+        /**
+         * Groupement par parcours
+         */
+        $courses = $timetable->courses()->get()->all();
+        foreach ($courses as $course) {
+            $academicTracks = $course->subject->academicTracks()->get()->all();
+            foreach ($academicTracks as $academicTrack) {
+                $timetables[$academicTrack->level->abbrName() . " " . $academicTrack->name][] = $this->formatCourseForPrint($course);
+            }
+        }
+
+
+        /**
+         * Tri des jours ( lundi, et matin passe devant les autres )
+         */
+
+        $sortedDay = [
+            "Lundi" => 0,
+            "Mardi" => 1,
+            "Mercredi" => 2,
+            "Jeudi" => 3,
+            "Vendredi" => 4
+        ];
+
+        foreach ($timetables as $key => $value) {
+            usort($value, static function ($courseA, $courseB) use ($sortedDay) {
+                if ($courseA["dayName"] === $courseB["dayName"]) {
+                    return ($courseA["dayPart"] === "Matin") ? -1 : 1;
+                }
+
+                return ($sortedDay[$courseA["dayName"]] < $sortedDay[$courseB["dayName"]]) ? -1 : 1;
+            });
+            $timetables[$key] = $value;
+        }
+
+        /**
+         * Groupement par jour
+         */
+
+        foreach ($timetables as $academicTrackName => $timateble_) {
+            $newValues = [];
+
+            foreach ($timateble_ as $course_) {
+                $newValues[$course_["dayName"]][] = [
+                    'name' => $course_["name"],
+                    'dayPart' => $course_["dayPart"],
+                    'classroom' => $course_["classroom"],
+                    "professor" => $course_["professor"]
+                ];
+            }
+
+            $timetables[$academicTrackName] = $newValues;
+        }
+
+        return Excel::store(new TimetableExport($timetables), "timetable-" . Carbon::now()->timestamp . ".xlsx");
+    }
+
+    public function formatCourseForPrint(Course $course)
+    {
+        $subject = $course->subject;
+        $professor = $subject->professor;
+        return [
+            'name' => $subject->name,
+            'dayName' => $course->dayName,
+            'dayPart' => $course->dayPart,
+            'classroom' => $course->classroom,
+            "professor" => $professor->name . " " . $professor->firstname
+        ];
     }
 }
