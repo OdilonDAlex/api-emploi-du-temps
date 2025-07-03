@@ -14,7 +14,10 @@ class Course extends Model
     protected $fillable = [
         'duration',
         'subject_id',
-        'timetable_id'
+        'timetable_id',
+        'dayName',
+        'dayPart',
+        'classroom'
     ];
 
     /**

@@ -162,16 +162,25 @@ class TimetableController extends Controller
 
             $value = $assignation[(string)$course->id];
 
+
+
             /**
              * @var array<int, AcademicTrack> $academicTracks
              */
             $academicTracks = $course->subject->academicTracks()->get()->all();
+
+            $course->dayName = $days[(int)$value->day->value];
+            $course->dayPart = $value->dayPart === DayPart::MORNING ? "Matin" : "Après-midi";
+            $course->classroom = $value->classroom->name;
+
+            $course->save();
+
             $results[] = [
                 'course' => $course->subject->name,
                 'levels' => $academicTracks[0]->level->name . ': ' .  array_reduce($academicTracks, fn($carry, $item) => $carry === null ? $item->name : $carry . ", " . $item->name),
-                'day' => $days[(int)$value->day->value],
-                'dayPart' => $value->dayPart === DayPart::MORNING ? "Matin" : "Après-midi",
-                "classroom" => $value->classroom->name
+                'day' => $course->dayName,
+                'dayPart' => $course->dayPart,
+                "classroom" => $value->classroom
             ];
         }
 
