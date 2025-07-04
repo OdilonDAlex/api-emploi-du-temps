@@ -41,7 +41,7 @@ class TimetableExport implements WithMultipleSheets
 
         Logger::log($day . ' ' . $month . ' ' . $year);
         foreach ($this->timetables as $name => $timetable) {
-            $sheets[] = new AcademicTrackTimetableExport("Semaine du {$day} {$month} {$year}", $name, $timetable, "{$todayDay} {$todayMonth} {$todayYear}");
+            $sheets[] = new AcademicTrackTimetableExport($weekDate->clone(), "Semaine du {$day} {$month} {$year}", $name, $timetable, "{$todayDay} {$todayMonth} {$todayYear}");
         }
         return $sheets;
     }

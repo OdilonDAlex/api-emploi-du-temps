@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Logger;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -36,6 +37,7 @@ class AcademicTrackTimetableExport implements
     private array $shouldBeMerged = array();
 
     public function __construct(
+        public Carbon $weekDate,
         private string $weekOf,
         private string $name,
         private array $timetable,
@@ -85,12 +87,13 @@ class AcademicTrackTimetableExport implements
             if (count($courses) > 1) {
                 $this->shouldBeMerged[] = ["A" . $currentRow, "A" . ($currentRow + 1)];
 
-                $result[] = [Str::limit($dayName, 3, '.'), "07h-12h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
-                $result[] = [Str::limit($dayName, 3, '.'), "14h-18h", $courses[1]["name"] . " ( " . $courses[1]["professor"] . " )", $courses[1]["classroom"]];
+                $result[] = [Str::limit($dayName, 3, '-') . $this->weekDate->format('d'), "07h-12h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
+                $result[] = [Str::limit($dayName, 3, '-') . $this->weekDate->format('d'), "14h-18h", $courses[1]["name"] . " ( " . $courses[1]["professor"] . " )", $courses[1]["classroom"]];
             } else {
-                $result[] = [Str::limit($dayName, 3, '.'), $courses[0]["dayPart"] === "Matin" ? "07h-12h" : "14h-18h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
+                $result[] = [Str::limit($dayName, 3, '-') . $this->weekDate->format('d'), $courses[0]["dayPart"] === "Matin" ? "07h-12h" : "14h-18h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
             }
 
+            $this->weekDate->addDay();
         }
 
         $result[] = ["*: Tronc commun", "", "Toamasina, le {$this->today}      ", ""];
