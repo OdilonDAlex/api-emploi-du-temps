@@ -93,11 +93,11 @@ class AcademicTrackTimetableExport implements
 
         }
 
-        $result[] = ["*: Tronc commun", "", "Toamasina, le {$this->today}", ""];
-        $result[] = ["", "", "Le Chef de mention" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("Le Chef de mention")) / 2), ""];
-        $result[] = ["", "", "PO Le Secrétaire" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("PO Le Secrétaire")) / 2), ""];
+        $result[] = ["*: Tronc commun", "", "Toamasina, le {$this->today}      ", ""];
+        $result[] = ["", "", "Le Chef de mention" . str_repeat(" ", (strlen("Toamasina, le {$this->today}      ") - strlen("Le Chef de mention")) / 2), ""];
+        $result[] = ["", "", "PO Le Secrétaire" . str_repeat(" ", (strlen("Toamasina, le {$this->today}      ") - strlen("PO Le Secrétaire")) / 2), ""];
         $result[] = [""];
-        $result[] = ["", "", "TOTOTSARA Nestor" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("TOTOTSARA Nestor")) / 2), ""];
+        $result[] = ["", "", "TOTOTSARA Nestor" . str_repeat(" ", (strlen("Toamasina, le {$this->today}      ") - strlen("TOTOTSARA Nestor")) / 2), ""];
 
         $this->rowCount = count($result) + 6;
 

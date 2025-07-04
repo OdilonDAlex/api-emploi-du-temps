@@ -258,8 +258,9 @@ class TimetableController extends Controller
     {
         $subject = $course->subject;
         $professor = $subject->professor;
+        Logger::log($subject->name . " " . $subject->academicTracks()->count());
         return [
-            'name' => $subject->name,
+            'name' => $subject->name . ($subject->academicTracks()->count() > 1 ? "*" : ""),
             'dayName' => $course->dayName,
             'dayPart' => $course->dayPart,
             'classroom' => $course->classroom,
