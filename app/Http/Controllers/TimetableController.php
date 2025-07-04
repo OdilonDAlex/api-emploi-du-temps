@@ -251,7 +251,7 @@ class TimetableController extends Controller
             $timetables[$academicTrackName] = $newValues;
         }
 
-        return Excel::store(new TimetableExport($timetables), "timetable-" . Carbon::now()->timestamp . ".xlsx");
+        return Excel::store(new TimetableExport($timetable->weekOf, $timetables), "timetable-" . Carbon::now()->timestamp . ".xlsx");
     }
 
     public function formatCourseForPrint(Course $course)

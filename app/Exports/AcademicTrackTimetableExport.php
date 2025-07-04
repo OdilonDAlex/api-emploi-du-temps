@@ -33,10 +33,13 @@ class AcademicTrackTimetableExport implements
      */
 
     private int $rowCount = 0;
+    private array $shouldBeMerged = array();
 
     public function __construct(
+        private string $weekOf,
         private string $name,
-        private array $timetable
+        private array $timetable,
+        private string $today = "",
     ) {}
 
     public function title(): string
@@ -50,8 +53,8 @@ class AcademicTrackTimetableExport implements
         $logo->setName('header');
         $logo->setDescription('haut de page');
         $logo->setPath(Storage::disk('public')->path('header.png'));
-        $logo->setWidth((18.54  * 96) / 2.54);
-        $logo->setHeight((3.70 * 96) / 2.54);
+        $logo->setWidth((18.10  * 96) / 2.54);
+        $logo->setHeight((3.85 * 96) / 2.54);
         $logo->setCoordinates('A1');
         return $logo;
     }
@@ -64,24 +67,43 @@ class AcademicTrackTimetableExport implements
     public function array(): array
     {
         $result = [];
+        $exploded = explode(" ", $this->weekOf);
+        $year = (int)array_pop($exploded);
 
         $exploded = explode(" ", $this->name);
         $result[] = ["EMPLOI DU TEMPS"];
-        $result[] = ["( Semaine du 17 Nov. 2027 )"];
-        $result[] = ["Mention : Mathématiques, Informatique et Applications", "", "", "Année U : 2023-2024"];
+        $result[] = ["( " . $this->weekOf . " )"];
+        $result[] = ["Mention : Mathématiques, Informatique et Applications", "", "", "Année U : " . $year . "-" . ($year + 1)];
         $result[] = ["Niveau : " . array_shift($exploded), "", "", "Parcous : " . implode(" ", $exploded)];
 
         $result[] = ["DATE", "HORAIRE", "ELEMENT CONSTITUTIF", "SALLE"];
+
+        // $currentDay = (int)explode(" ", $this->weekOf)[2];
+
         foreach ($this->timetable as $dayName => $courses) {
-            foreach ($courses as $course) {
-                $result[] = [Str::limit($dayName, 3, '.'), "", $course["name"] . " (" . $course["professor"] . ")", $course["classroom"]];
+            $currentRow = count($result) + 6;
+            if (count($courses) > 1) {
+                $this->shouldBeMerged[] = ["A" . $currentRow, "A" . ($currentRow + 1)];
+
+                $result[] = [Str::limit($dayName, 3, '.'), "07h-12h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
+                $result[] = [Str::limit($dayName, 3, '.'), "14h-18h", $courses[1]["name"] . " ( " . $courses[1]["professor"] . " )", $courses[1]["classroom"]];
+            } else {
+                $result[] = [Str::limit($dayName, 3, '.'), $courses[0]["dayPart"] === "Matin" ? "07h-12h" : "14h-18h", $courses[0]["name"] . " ( " . $courses[0]["professor"] . " )", $courses[0]["classroom"]];
             }
+
         }
 
-        $result[] = ["*: Tronc commun", "", "", "Toamasina, le 13 Septembre 2024"];
-        $result[] = ["", "", "", "Le Chef de mention"];
+        $result[] = ["*: Tronc commun", "", "Toamasina, le {$this->today}", ""];
+        $result[] = ["", "", "Le Chef de mention" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("Le Chef de mention")) / 2), ""];
+        $result[] = ["", "", "PO Le Secrétaire" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("PO Le Secrétaire")) / 2), ""];
+        $result[] = [""];
+        $result[] = ["", "", "TOTOTSARA Nestor" . str_repeat(" ", (strlen("Toamasina, le {$this->today}") - strlen("TOTOTSARA Nestor")) / 2), ""];
 
-        $this->rowCount = count($result) + 7;
+        $this->rowCount = count($result) + 6;
+
+        foreach ($this->shouldBeMerged as $value) {
+            Logger::log(array_reduce($value, fn($carry, $item) => $carry . ', ' . $item, ''));
+        }
 
         return $result;
     }
@@ -215,6 +237,65 @@ class AcademicTrackTimetableExport implements
                             ]
                         ]
                     );
+                }
+
+                foreach ($this->shouldBeMerged as $shouldMerge) {
+                    Logger::log($shouldMerge[0] . ':' . $shouldMerge[1]);
+                    $delegate->mergeCells($shouldMerge[0] . ':' . $shouldMerge[1]);
+                }
+
+                for ($i = 11; $i < $this->rowCount - 5; $i++) {
+                    for ($j = 0; $j < 4; $j++) {
+                        $delegate->getCell("{$abcd[$j]}{$i}")->getAppliedStyle()->applyFromArray(array(
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER
+                            ],
+                            'borders' => [
+                                'top' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => [
+                                        'rgb' => '444444'
+                                    ]
+                                ],
+                                'left' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => [
+                                        'rgb' => '444444'
+                                    ]
+                                ],
+                                'bottom' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => [
+                                        'rgb' => '444444'
+                                    ]
+                                ],
+                                'right' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => [
+                                        'rgb' => '444444'
+                                    ]
+                                ]
+                            ]
+                        ));
+                    }
+                }
+
+                $delegate->getCell("A" . ($this->rowCount - 5))->getAppliedStyle()->applyFromArray(array(
+                    'font' => [
+                        'size' => 10,
+                        'italic' => true,
+                        'font-weight' => 'lighter'
+                    ]
+                ));
+
+
+                for ($i = 1; $i <= 5; $i++) {
+                    $delegate->getCell("C" . ($this->rowCount - $i))->getAppliedStyle()->applyFromArray(array(
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                        ]
+                    ));
                 }
             }
         ];
