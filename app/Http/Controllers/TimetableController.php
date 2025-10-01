@@ -200,7 +200,7 @@ class TimetableController extends Controller
         /**
          * Groupement par parcours
          */
-        $courses = $timetable->courses()->get()->all();
+        $courses = $timetable->courses()->whereNot('classroom', null)->get()->all();
         foreach ($courses as $course) {
             $academicTracks = $course->subject->academicTracks()->get()->all();
             foreach ($academicTracks as $academicTrack) {
@@ -251,7 +251,7 @@ class TimetableController extends Controller
             $timetables[$academicTrackName] = $newValues;
         }
 
-        return Excel::store(new TimetableExport($timetable->weekOf, $timetables), "timetable-" . Carbon::now()->timestamp . ".xlsx");
+        return Excel::download(new TimetableExport($timetable->weekOf, $timetables), "timetable-" . Carbon::now()->timestamp . ".xlsx");
     }
 
     public function formatCourseForPrint(Course $course)

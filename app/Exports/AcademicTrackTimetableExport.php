@@ -75,7 +75,7 @@ class AcademicTrackTimetableExport implements
         $exploded = explode(" ", $this->name);
         $result[] = ["EMPLOI DU TEMPS"];
         $result[] = ["( " . $this->weekOf . " )"];
-        $result[] = ["Mention : Mathématiques, Informatique et Applications", "", "", "Année U : " . $year . "-" . ($year + 1)];
+        $result[] = ["Mention : Mathématiques, Informatique et Applications", "", "", "Année U : " . ($year - 1) . "-" . ($year)];
         $result[] = ["Niveau : " . array_shift($exploded), "", "", "Parcous : " . implode(" ", $exploded)];
 
         $result[] = ["DATE", "HORAIRE", "ELEMENT CONSTITUTIF", "SALLE"];
